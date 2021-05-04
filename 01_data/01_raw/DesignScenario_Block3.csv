@@ -1,0 +1,9 @@
+task,goal1,form1,mag1,dir1,goal2,form2,mag2,dir2,goal3,form3,mag3,dir3
+1,60,donate,500,neg,90,cash,300,pos,SQ,SQ,SQ,SQ
+2,90,cash,500,pos,30,voucher,160,neg,SQ,SQ,SQ,SQ
+3,30,voucher,160,pos,90,donate,300,neg,SQ,SQ,SQ,SQ
+4,90,voucher,500,neg,60,cash,160,pos,SQ,SQ,SQ,SQ
+5,30,voucher,300,neg,60,donate,160,pos,SQ,SQ,SQ,SQ
+6,60,donate,160,neg,30,cash,300,pos,SQ,SQ,SQ,SQ
+7,30,donate,300,pos,60,voucher,500,neg,SQ,SQ,SQ,SQ
+8,90,cash,160,pos,30,voucher,500,neg,SQ,SQ,SQ,SQ

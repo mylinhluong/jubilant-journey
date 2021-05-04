@@ -72,7 +72,7 @@ data_rename<-data_raw%>%
          #SENSITIVITY_DURATION#
          duration=Q_TotalDuration,   
          #CHOICE SET# 
-         DCE1.4:DCE1.27, DCE2.4:DCE2.27, DCE3.4:DCE3.2,
+         DCE1.4:DCE1.27, DCE2.4:DCE2.27, DCE3.4:DCE3.27,
          #RISKAVERSIONv1#
          risk1_1=averse1.2,risk1_2=averse1.3,risk1_3=averse1.4,risk1_4=averse1.5,risk1_5=averse1.6,risk1_6=averse1.7,
          risk1_7=averse1.8,risk1_8=averse1.9,risk1_9=averse1.10,risk1_10=averse1.11,risk1_11=averse1.12,risk1_12=averse1.13,
@@ -94,7 +94,7 @@ data_rename<-data_raw%>%
          breq3_ext1=Q10.2_6,breq3_ext2=Q10.3_4,breq3_ext3=Q10.4_2,breq3_ext4=Q10.4_8,
          #PHYSICAL ACTIVITY#
          VigDays=Q10.8_1,VigHours=Q10.9_1_TEXT,VigMin=Q10.9_2_TEXT,VigDK=Q10.9_6,
-         ModDays=Q10.11_1,ModHour=Q10.12_1_TEXT,ModMin=Q10.12_2_TEXT,ModDK=Q10.12_4,
+         ModDays=Q10.11_1,ModHours=Q10.12_1_TEXT,ModMin=Q10.12_2_TEXT,ModDK=Q10.12_4,
          WalkDays=Q10.14_1,WalkHours=Q10.15_1_TEXT,WalkMin=Q10.15_2_TEXT,WalkDK=Q10.15_4,
          SitHours=Q10.17_1_TEXT,SitMin=Q10.17_2_TEXT,SitDK=Q10.17_4,
          PA_typical=Q10.18,
@@ -108,6 +108,12 @@ data_rename<-data_raw%>%
          DOB=Q12.1, enddate=EndDate, gender=Q12.2, height=Q12.3, weight=Q12.4, 
          employed=Q12.5, income=Q12.6, household=Q12.7, state= Q12.8)	
                              
+#Save object to an rds file to preserve column data types
+saveRDS(data_rename,"01_data/02_processed/data_rename.rds")
+
+#Write to CSV file
+write.csv(data_rename,"01_data/02_processed/data_rename.csv", row.names=FALSE)
+
 
 #end of script
 #close the error message catching script and save the file

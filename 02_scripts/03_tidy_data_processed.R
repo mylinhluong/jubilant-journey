@@ -1,152 +1,56 @@
-#NEXT STEPS
-#look into local v global environmentment [new.env()]to clean up global environment and leave only dataset for analysis
-#This script sources several scripts to creates a new DF that includes tidy data for non-choice set data:  
-  # monotonicity (for sensitivity analysis)
-  # IPAQ-SF 
-  # the BREQ-3 
-  # aversion (loss and risk) 
-  # OA characteristics (incl NICE OA criteria, pain NRS and function NRS)
-  # sociodemographics
-
-#CHECK PACKRAT TO DELETE
-install.packages("summarytools") #https://statsandr.com/blog/descriptive-statistics-in-r/
-install.packages("gtsummary")
-#transform mutate_at to across https://dplyr.tidyverse.org/dev/articles/colwise.html
-#https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/
-#https://stackoverflow.com/questions/49396267/dplyr-rowwise-sum-and-other-functions-like-max 
-#summing across many columns: https://github.com/tidyverse/dplyr/issues/4544
-#row-wise operations: https://dplyr.tidyverse.org/articles/rowwise.html
+######TIDYING DCE DATA######
+#next steps, working on block1_best to recode data into 1 for A, 2 for B and 0 for NoTx
+#update remaining design scenario blocks
+#update rename to include :3.27 to re-upload
+#install.packages into another R script
+#figure out where to put tidy_DCE, as part of or not as part of self-report
+#check to make sure that the design scenarios are right
 
 ######LIBRARIES
 library(here)
 library(readr)
 library(dplyr)
-library(lubridate)
+library(tidyr)
 
 # #Create a .txt file within the errors folder
-# tidy_selfreport_03 <- file(here("02_scripts","Errors", "03_tidy_selfreport.txt"), open = "wt")
+# tidy_selfreport_03 <- file(here("02_scripts","Errors", "03_tidy_DCE.txt"), open = "wt")
 # sink(tidy_selfreport_03, type = "message")
 
 #import renamed dataset into environment
-data<- read_csv(here("01_data","02_processed", "data_rename.csv"))
+data_DCE<- read_rds(here("01_data","02_processed", "data_DCE_processed.rds"))
+data_SR<- read_rds(here("01_data","02_processed", "data_SR_processed.rds")) 
+  # %>% mutate(across(c(ID, aversion_version, joint_study, joint_multi,
+   #             NICE_diagnosis, pain_recode, hipL:PA_typical,FiveDays:gender,BMI_recode: DCE_mono),as.factor)) 
+data_SR_sens<-read_rds(here("01_data","02_processed", "data_SR_processed_sens.rds")) 
+  # %>% mutate(across(c(ID, aversion_version, joint_study, joint_multi,
+   #             NICE_diagnosis,pain_recode hipL:PA_typical,FiveDays:gender,BMI_recode: DCE_mono),as.factor)) 
 
+# ############SCRIPTS############
+# #this script tidies DCE stated preference data for all participants
+# source(here("02_scripts","03_tidy_DCE.R"))
+# 
+# #this script tidies self-report data for all participants
+# source(here("02_scripts","03_tidy_selfreport.R"))
 
-#View(data)
-############SCRIPTS############
-#this script scores risk aversion, loss aversion, and notes which version they received
-source(here("02_scripts","03_tidy_selfreport_aversion.R"))
-
-#this script scores the BREQ-3 motivation scales
-source(here("02_scripts", "03_tidy_selfreport_BREQ3.R"))
-
-#this scripts scores the IPAQ-Short Form
-source(here("02_scripts", "03_tidy_selfreport_IPAQ.R"))
-
-#this script compiles information about the participant's joint pain and function, including whether or not the participant
-#has a NICE diagnosis of osteoarthritis
-source(here("02_scripts", "03_tidy_selfreport_OA_chars.R"))
-
-#this script scores data checks for mononiticity and duration in secs the participant took to complete the study
-source(here("02_scripts", "03_tidy_selfreport_sensitivity.R"))
-
-#this script tidies sociodemographic data, including 
-# calculating age from date of birth, cleaning height & weight data, calculating BMI
-source(here("02_scripts", "03_tidy_selfreport_sociodems.R"))
-
-###### Creating tidy self-report data#####
-data_SR_processed<-data_aversion %>% 
-  left_join(data_breq, by="ID") %>% 
-  left_join(data_OA_chars, by="ID") %>% 
-  left_join(data_ipaq, by="ID") %>% 
-  left_join(data_sociodems, by="ID") %>% 
-  left_join(data_sensitivity, by="ID") %>%
-  mutate(across(c(ID, aversion_version, joint_study, joint_multi,
-              NICE_diagnosis, pain_recode, hipL:PA_typical,FiveDays:gender,BMI_recode: DCE_mono),as.factor)) %>%
-  mutate(across(c(VigDays:METs_Total),as.numeric)) %>% 
-  filter(!is.na(DCE_mono))%>%
-  filter(DCE_mono==1)
-
-data_SR_processed_sens<-data_aversion %>% 
-  left_join(data_breq, by="ID") %>% 
-  left_join(data_OA_chars, by="ID") %>% 
-  left_join(data_ipaq, by="ID") %>% 
-  left_join(data_sociodems, by="ID") %>% 
-  left_join(data_sensitivity, by="ID") %>%
-  #mutate(across(c(ID, aversion_version, joint_study, joint_multi,
-  #NICE_diagnosis,pain_recode, hipL:PA_typical,FiveDays:gender,BMI_recode: DCE_mono),as.factor)) %>%
-  mutate(across(c(VigDays:METs_Total),as.numeric)) %>% 
+###### Creating tidy processed data#####
+data_processed<-data_DCE %>% 
+  left_join(data_SR, by="ID") %>% 
+  arrange(desc(ID)) %>% 
   filter(!is.na(DCE_mono))
-  
 
-#Save object to an rds file to preserve column data types
-# saveRDS(data_SR_processed,"01_data/02_processed/data_SR_processed.rds")
-# saveRDS(data_SR_processed_sens,"01_data/02_processed/data_SR_processed_sens.rds")
-# 
+data_processed_sens<-data_DCE %>% 
+  left_join(data_SR_sens, by="ID") %>% 
+  arrange(desc(ID))
+
+# #Save object to an rds file to preserve column data types
+# saveRDS(data_processed,"01_data/02_processed/00_data_processed.rds")
+# saveRDS(data_processed_sens,"01_data/02_processed/00_data_processed_sens.rds")
+
 # #Write to CSV file
-# write.csv(data_SR_processed,"01_data/02_processed/data_SR_processed.csv", row.names=FALSE)
-# write.csv(data_SR_processed_sens,"01_data/02_processed/data_SR_processed_sens.csv", row.names=FALSE)
+# write.csv(data_processed,"01_data/02_processed/00_data_processed.csv", row.names=FALSE)
+# write.csv(data_processed_sens,"01_data/02_processed/00_data_processed_sens.csv", row.names=FALSE)
 
-# #end of script
-# #close the error message catching script and save the file
-# sink(type = "message")
-# close(tidy_selfreport_03)
-# 
-# #Open the .txt file for inspection
-# readLines(here("02_scripts","Errors", "03_tidy_selfreport.txt"))
-
-str(data_SR_processed)
-# tibble [288 x 50] (S3: tbl_df/tbl/data.frame)
-# $ ID                : Factor w/ 387 levels "00528be0-0b09-4a3f-24ac-bc796b309825",..: 111 164 218 244 327 361 385 160 321 333 ...
-# $ aversion_version  : Factor w/ 2 levels "1","2": 2 1 1 2 1 2 2 1 1 1 ...
-# $ risk_score        : num [1:288] 1 6 12 12 8 12 12 6 12 9 ...
-# $ loss_score        : num [1:288] 1 1 2 12 1 1 1 1 12 1 ...
-# $ identified        : num [1:288] 3 3.5 1 2.75 1.75 4 1.75 2 2 4 ...
-# $ amotivation       : num [1:288] 3 0 0 2 1.75 0 0.25 2 0 3 ...
-# $ intrinsic         : num [1:288] 3 3.75 0 3 1.25 3 2.25 2 2.5 3.75 ...
-# $ integrated        : num [1:288] 3.25 3 0 2.75 1.25 4 1 2 2.75 4 ...
-# $ extrinsic         : num [1:288] 3 0.25 0 2.25 2 0 0.25 2 0 4 ...
-# $ joint_study       : Factor w/ 8 levels "1","2","3","4",..: 1 5 4 6 7 3 6 4 4 6 ...
-# $ joint_number      : num [1:288] 1 3 2 2 4 2 2 2 2 2 ...
-# $ joint_multi       : Factor w/ 2 levels "0","1": 1 2 2 2 2 2 2 2 2 2 ...
-# $ NICE_diagnosis    : Factor w/ 2 levels "0","1": 2 2 2 1 1 1 2 2 1 2 ...
-# $ pain_NRS          : num [1:288] 7 5 7 5 7 6 5 7 3 7 ...
-# $ pain_recode       : Factor w/ 3 levels "mild","moderate",..: 2 1 2 1 2 2 1 2 1 2 ...
-# $ function_NRS      : num [1:288] 7 3 8 5 7 8 2 7 4 7 ...
-# $ hipL              : Factor w/ 2 levels "0","1": 2 1 1 1 1 1 1 1 1 1 ...
-# $ hipR              : Factor w/ 2 levels "0","1": 1 1 1 1 1 2 1 1 2 1 ...
-# $ ankleL            : Factor w/ 2 levels "0","1": 1 2 1 1 2 1 1 1 1 1 ...
-# $ ankleR            : Factor w/ 2 levels "0","1": 1 2 1 1 2 1 1 1 1 1 ...
-# $ kneeL             : Factor w/ 2 levels "0","1": 1 1 2 1 1 2 2 2 1 1 ...
-# $ kneeR             : Factor w/ 2 levels "0","1": 1 1 2 2 1 1 1 2 2 1 ...
-# $ footL             : Factor w/ 2 levels "0","1": 1 2 1 2 2 1 2 1 1 2 ...
-# $ footR             : Factor w/ 2 levels "0","1": 1 1 1 1 2 1 1 1 1 2 ...
-# $ PA_typical        : Factor w/ 3 levels "1","2","3": 3 1 1 1 1 1 1 NA 1 2 ...
-# $ VigDays           : num [1:288] 4 0 0 5 0 3 1 NA 0 4 ...
-# $ TotalVigMin_trunc : num [1:288] 720 0 0 150 0 60 30 NA 0 1440 ...
-# $ ModDays           : num [1:288] 4 0 0 5 0 7 2 NA 0 0 ...
-# $ TotalModMin_trunc : num [1:288] 720 0 0 150 0 420 120 NA 0 0 ...
-# $ WalkDays          : num [1:288] 3 7 1 7 6 7 5 NA 7 7 ...
-# $ TotalWalkMin_trunc: num [1:288] 540 0 0 175 180 140 100 NA 210 420 ...
-# $ TotalPAMin_trunc  : num [1:288] 1980 0 0 475 180 620 250 NA 210 1860 ...
-# $ METs_Vig          : num [1:288] 5760 0 0 1200 0 ...
-# $ METs_Mod          : num [1:288] 2880 0 0 600 0 1680 480 NA 0 0 ...
-# $ METs_Walk         : num [1:288] 1782 0 0 578 594 ...
-# $ METs_Total        : num [1:288] 10422 0 0 2378 594 ...
-# $ FiveDays          : Factor w/ 2 levels "0","1": 2 2 1 2 2 2 2 NA 2 2 ...
-# $ SevenDays         : Factor w/ 2 levels "0","1": 2 2 1 2 1 2 2 NA 2 2 ...
-# $ IPAQ_cat          : Factor w/ 3 levels "1","2","3": 3 NA NA 3 2 3 2 NA 2 3 ...
-# $ gender            : Factor w/ 2 levels "1","2": 2 1 2 1 1 1 1 1 2 2 ...
-# $ age               : num [1:288] 51 70 51 50 64 50 55 47 60 54 ...
-# $ BMI_calc          : num [1:288] NA 23 28 24 24 18 32 22 26 NA ...
-# $ BMI_recode        : Factor w/ 4 levels "healthy","obese",..: NA 1 3 1 1 4 2 1 3 NA ...
-# $ income            : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 5 3 6 1 3 5 2 ...
-# $ income_recode     : Factor w/ 3 levels "high","low","medium": 2 2 3 1 3 NA 2 3 1 2 ...
-# $ employed          : Factor w/ 2 levels "1","2": 2 2 2 1 2 2 2 2 1 2 ...
-# $ household         : Factor w/ 3 levels "1","2","4": 1 1 2 2 2 2 2 2 2 2 ...
-# $ state             : Factor w/ 8 levels "1","2","3","4",..: 6 6 4 4 1 1 1 6 5 1 ...
-# $ DCE_mono          : Factor w/ 2 levels "0","1": 2 2 2 2 2 2 2 2 2 2 ...
-# $ duration          : num [1:288] 439 721 495 708 914 583 995 960 831 808 ...
-summary(data_SR_processed)
+#summary(data_SR_processed)
 #                                    ID      aversion_version   risk_score       loss_score      identified   
 # 00528be0-0b09-4a3f-24ac-bc796b309825:  1   1:143            Min.   : 0.000   Min.   : 0.00   Min.   :0.000  
 # 01aa1bbe-843c-c35c-dcf2-2c816964ce6f:  1   2:145            1st Qu.: 5.000   1st Qu.: 1.00   1st Qu.:2.250  
@@ -203,7 +107,7 @@ summary(data_SR_processed)
 # 3rd Qu.: 1436.0  
 # Max.   :20424.0 
 
-summary(data_SR_processed_sens)
+#summary(data_SR_processed_sens)
 #                                    ID      aversion_version   risk_score       loss_score       identified   
 # 00528be0-0b09-4a3f-24ac-bc796b309825:  1   1:154            Min.   : 0.000   Min.   : 0.000   Min.   :0.000  
 # 01394623-b527-bfb2-486f-711230d5bfe3:  1   2:156            1st Qu.: 5.000   1st Qu.: 1.000   1st Qu.:2.250  
@@ -259,40 +163,3 @@ summary(data_SR_processed_sens)
 # Mean   : 1464.2  
 # 3rd Qu.: 1431.2  
 # Max.   :20424.0  
-
-##################
-#CORRELATIONS    #
-##################
-summary(data_SR_processed)
-data_corr<-select(data_SR_processed, aversion_version=aversion_version,
-                  risk_score=risk_score, loss_score=loss_score, intrinsic=intrinsic, extrinsic=extrinsic, 
-                  joint_study=joint_study, NICE_diagnosis=NICE_diagnosis, pain_NRS=pain_NRS, pain_recode=pain_recode, 
-                  function_NRS=function_NRS, TotalPAMin_trunc=TotalPAMin_trunc, METs_Total=METs_Total, IPAQ_cat=IPAQ_cat,
-                  gender=gender, age=age, BMI_calc=BMI_calc, BMI_recode=BMI_recode, income=income, income_recode=income_recode, 
-                  employed=employed, state=state, DCE_mono=DCE_mono)
-                  
-                  
-                  habit=habit,
-                  intention=intention_strength,
-                  painT1=pain_T1,
-                  painT2=pain_T2,
-                  IPAQT1=IPAQ_MET_MIN_WEEK_T1_trunc,
-                  IPAQT2=IPAQ_MET_MIN_WEEK_T2_trunc,
-                  age=age,
-                  BMI=BMI_calc,
-                  edu=educ_years,
-                  se=selfefficacy,
-                  se_walk=selfefficacy_walk)
-
-summary(data_corr)
-# 
-
-corr_matrix<-rcorr(as.matrix(data_corr),
-                   type="pearson")
-
-corr_matrix
-#  
-
-flattenCorrMatrix(corr_matrix$r, corr_matrix$P)
-#
-

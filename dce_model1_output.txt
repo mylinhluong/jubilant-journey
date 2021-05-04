@@ -1,0 +1,215 @@
+Model run using Apollo for R, version 0.2.5 on Windows by My-Linh 
+www.ApolloChoiceModelling.com
+
+Model name                       : dce_model1
+Model description                : MNL model on SP data
+Model run at                     : 2021-06-11 16:53:46
+Estimation method                : bfgs
+Model diagnosis                  : successful convergence 
+Number of individuals            : 288
+Number of rows in database       : 2294
+Number of modelled outcomes      : 2294
+
+Number of cores used             :  1 
+Model without mixing
+
+LL(start)                        : -1590.08
+LL(0)                            : -1590.08
+LL(final)                        : -1099.452
+Rho-square (0)                   :  0.3086 
+Adj.Rho-square (0)               :  0.3042 
+AIC                              :  2212.9 
+BIC                              :  2253.07 
+
+
+Estimated parameters             :  7
+Time taken (hh:mm:ss)            :  00:00:2.07 
+     pre-estimation              :  00:00:0.8 
+     estimation                  :  00:00:0.71 
+     post-estimation             :  00:00:0.56 
+Iterations                       :  17  
+Min abs eigenvalue of Hessian    :  77.8504 
+
+Estimates:
+                  Estimate        s.e.   t.rat.(0)    Rob.s.e. Rob.t.rat.(0)
+b_goal_30          0.00000          NA          NA          NA            NA
+b_goal_60         -0.19134     0.07720      -2.478     0.08397        -2.279
+b_goal_90         -0.86738     0.07617     -11.388     0.09436        -9.192
+b_form_cash        0.00000          NA          NA          NA            NA
+b_form_voucher    -0.51883     0.07106      -7.301     0.07595        -6.831
+b_form_donate     -1.96009     0.08633     -22.705     0.11333       -17.295
+b_mag_160          0.00000          NA          NA          NA            NA
+b_mag_300          0.63871     0.08125       7.861     0.07983         8.001
+b_mag_500          0.84113     0.07464      11.269     0.08854         9.500
+b_dir_pos          0.00000          NA          NA          NA            NA
+b_dir_neg         -0.06212     0.05372      -1.157     0.05476        -1.135
+
+WARNING: Availability not provided (or some elements are NA). Full availability assumed.
+
+Overview of choices for MNL model component :
+                                    alt1    alt2
+Times available                  2294.00 2294.00
+Times chosen                     1067.00 1227.00
+Percentage chosen overall          46.51   53.49
+Percentage chosen when available   46.51   53.49
+
+
+Classical covariance matrix:
+                    b_goal_60      b_goal_90 b_form_voucher  b_form_donate      b_mag_300      b_mag_500      b_dir_neg
+b_goal_60            0.005961       0.002853     5.2574e-04     4.4424e-04     4.8509e-04      3.069e-05     -1.455e-05
+b_goal_90            0.002853       0.005802     6.5872e-04       0.001683    -9.8432e-04    -7.6494e-04     2.0342e-04
+b_form_voucher     5.2574e-04     6.5872e-04       0.005050       0.003034    -6.2363e-04    -6.2852e-04    -2.1055e-04
+b_form_donate      4.4424e-04       0.001683       0.003034       0.007453      -0.001833      -0.001681     4.2147e-04
+b_mag_300          4.8509e-04    -9.8432e-04    -6.2363e-04      -0.001833       0.006601       0.003081    -1.6675e-04
+b_mag_500           3.069e-05    -7.6494e-04    -6.2852e-04      -0.001681       0.003081       0.005571    -4.5647e-04
+b_dir_neg          -1.455e-05     2.0342e-04    -2.1055e-04     4.2147e-04    -1.6675e-04    -4.5647e-04       0.002885
+
+Robust covariance matrix:
+                    b_goal_60      b_goal_90 b_form_voucher  b_form_donate      b_mag_300      b_mag_500      b_dir_neg
+b_goal_60            0.007050       0.004964       0.001784       0.001470     9.6093e-04    -5.3426e-04    -1.1583e-04
+b_goal_90            0.004964       0.008905       0.001853       0.001961    -7.6722e-04    -4.3337e-04     3.0153e-04
+b_form_voucher       0.001784       0.001853       0.005768       0.004968    -1.0332e-04    -2.5096e-04    -1.9587e-04
+b_form_donate        0.001470       0.001961       0.004968       0.012844      -0.001646      -0.002914    -3.5893e-04
+b_mag_300          9.6093e-04    -7.6722e-04    -1.0332e-04      -0.001646       0.006373       0.003775    -2.2917e-04
+b_mag_500         -5.3426e-04    -4.3337e-04    -2.5096e-04      -0.002914       0.003775       0.007840    -3.8304e-04
+b_dir_neg         -1.1583e-04     3.0153e-04    -1.9587e-04    -3.5893e-04    -2.2917e-04    -3.8304e-04       0.002998
+
+Classical correlation matrix:
+                    b_goal_60      b_goal_90 b_form_voucher  b_form_donate      b_mag_300      b_mag_500      b_dir_neg
+b_goal_60            1.000000        0.48510        0.09583        0.06665        0.07733       0.005326      -0.003510
+b_goal_90            0.485105        1.00000        0.12170        0.25599       -0.15906      -0.134549       0.049720
+b_form_voucher       0.095827        0.12170        1.00000        0.49457       -0.10802      -0.118498      -0.055159
+b_form_donate        0.066652        0.25599        0.49457        1.00000       -0.26134      -0.260871       0.090887
+b_mag_300            0.077335       -0.15906       -0.10802       -0.26134        1.00000       0.508106      -0.038209
+b_mag_500            0.005326       -0.13455       -0.11850       -0.26087        0.50811       1.000000      -0.113851
+b_dir_neg           -0.003510        0.04972       -0.05516        0.09089       -0.03821      -0.113851       1.000000
+
+Robust correlation matrix:
+                    b_goal_60      b_goal_90 b_form_voucher  b_form_donate      b_mag_300      b_mag_500      b_dir_neg
+b_goal_60             1.00000        0.62648        0.27971        0.15450        0.14336       -0.07186       -0.02519
+b_goal_90             0.62648        1.00000        0.25858        0.18333       -0.10185       -0.05187        0.05836
+b_form_voucher        0.27971        0.25858        1.00000        0.57719       -0.01704       -0.03732       -0.04710
+b_form_donate         0.15450        0.18333        0.57719        1.00000       -0.18198       -0.29038       -0.05784
+b_mag_300             0.14336       -0.10185       -0.01704       -0.18198        1.00000        0.53408       -0.05243
+b_mag_500            -0.07186       -0.05187       -0.03732       -0.29038        0.53408        1.00000       -0.07900
+b_dir_neg            -0.02519        0.05836       -0.04710       -0.05784       -0.05243       -0.07900        1.00000
+
+ 20 worst outliers in terms of lowest average per choice prediction:
+                                   ID Avg prob per choice
+ 1406b27b-bc6d-6999-7737-852d7cb5eeba           0.2717133
+ e54a58f3-b730-b163-3bbf-6f61fd221a38           0.2840414
+ 78ee8323-d872-1240-e46f-b4c557d8c9ee           0.2911677
+ 3bce5ed4-644f-85e3-bf98-69e5601a3715           0.3213814
+ 57c28b94-caa2-0f95-b4d8-bce9561adb58           0.3271688
+ 2e559ffc-a100-72b6-5fb0-a87ee80f3420           0.3271688
+ 87d19436-a370-fe16-a77a-a3fa2516f6ef           0.3319150
+ ba6a0215-7980-d58c-1b59-35419bcb6bd6           0.3344665
+ 1e16e6d6-8980-8203-609a-d13dbfe5a316           0.3499468
+ 9c261ff8-7ee8-55d4-50b4-280dbc81ef3e           0.3514664
+ ca91dd87-678f-7f20-e0cb-eaba21503d4d           0.3590518
+ 9c88a799-b91d-ca80-f9d5-90a3e993e441           0.3590518
+ 64c05311-1cc6-7045-b65d-64ebb21bb6dd           0.3613674
+ 75e53996-2cc9-b65a-94da-0ece0b6abe54           0.3674525
+ a745a2bc-18e4-7f9e-34f0-956ed73ab26e           0.3676564
+ e71c6b91-6b88-f642-53dd-5c37b8162755           0.3677067
+ 3e763065-b3b9-af3a-0729-075d153929ad           0.3893300
+ bfd8926d-c391-5f06-ae21-a5f398ded1a6           0.3933069
+ a5915abd-5952-f947-e0f1-6dbaa30eca70           0.3992788
+ 956d1b33-5a93-7453-1c7f-2c467d0003f2           0.3992788
+
+Changes in parameter estimates from starting values:
+                   Initial    Estimate  Difference
+b_goal_30            0.000     0.00000     0.00000
+b_goal_60            0.000    -0.19134    -0.19134
+b_goal_90            0.000    -0.86738    -0.86738
+b_form_cash          0.000     0.00000     0.00000
+b_form_voucher       0.000    -0.51883    -0.51883
+b_form_donate        0.000    -1.96009    -1.96009
+b_mag_160            0.000     0.00000     0.00000
+b_mag_300            0.000     0.63871     0.63871
+b_mag_500            0.000     0.84113     0.84113
+b_dir_pos            0.000     0.00000     0.00000
+b_dir_neg            0.000    -0.06212    -0.06212
+
+Settings and functions used in model definition:
+
+apollo_control
+--------------
+                       Value                 
+modelName              "dce_model1"          
+modelDescr             "MNL model on SP data"
+indivID                "ID"                  
+debug                  "FALSE"               
+nCores                 "1"                   
+workInLogs             "FALSE"               
+seed                   "13"                  
+mixing                 "FALSE"               
+HB                     "FALSE"               
+noValidation           "FALSE"               
+noDiagnostics          "FALSE"               
+panelData              "TRUE"                
+analyticGrad           "TRUE"                
+analyticGrad_manualSet "FALSE"               
+
+Hessian routines attempted
+--------------
+numerical jacobian of LL analytical gradient
+
+Scaling used in computing Hessian
+--------------
+                    Value
+b_goal_60      0.19134295
+b_goal_90      0.86737961
+b_form_voucher 0.51882890
+b_form_donate  1.96008930
+b_mag_300      0.63870518
+b_mag_500      0.84112803
+b_dir_neg      0.06212481
+
+
+apollo_probabilities
+--------------------
+function(apollo_beta, apollo_inputs, 
+                              functionality="estimate"){
+  
+  ### Attach inputs and detach after function exit
+  apollo_attach(apollo_beta, apollo_inputs)
+  on.exit(apollo_detach(apollo_beta, apollo_inputs))
+  
+  ### Create list of probabilities P
+  P = list()
+  
+  ### List of utilities: these must use the same names as
+  ### in mnl_settings, order is irrelevant.
+  V = list()
+  V[['alt1']] = b_goal_30*(goal1==30) + b_goal_60*(goal1==60)+ b_goal_90*(goal1==90)+
+    b_form_cash*(form1=="cash")+b_form_donate*(form1=="donate")+b_form_voucher*(form1=="voucher")+
+    b_mag_160*(mag1==160)+b_mag_300*(mag1==300)+b_mag_500*(mag1==500)+
+    b_dir_pos*(dir1=="pos")+b_dir_neg*(dir1=="neg")
+  V[['alt2']] = b_goal_30*(goal2==30) + b_goal_60*(goal2==60)+ b_goal_90*(goal2==90)+
+    b_form_cash*(form2=="cash")+b_form_donate*(form2=="donate")+b_form_voucher*(form2=="voucher")+
+    b_mag_160*(mag2==160)+b_mag_300*(mag2==300)+b_mag_500*(mag2==500)+
+    b_dir_pos*(dir2=="pos")+b_dir_neg*(dir2=="neg")
+  
+  # asc_1 + 
+  # asc_2 +
+  
+  ### Define settings for MNL model component
+  mnl_settings = list(
+    alternatives  = c(alt1=1, alt2=2), 
+    avail         = 1, 
+    choiceVar     = choice_forced,
+    # explanators  = database[,c("risk_score","loss_score","intrinsic","extrinsic", "pain_NRS", "function_NRS",
+    #                            "IPAQ_cat", 
+    #                            "gender", "age", "BMI_calc", "income")],
+  V=V)
+  
+    ### Compute probabilities using MNL model
+  P[['model']] = apollo_mnl(mnl_settings, functionality)
+  
+  ### Take product across observation for same individual
+  P = apollo_panelProd(P, apollo_inputs, functionality)
+  
+  ### Prepare and return outputs of function
+  P = apollo_prepareProb(P, apollo_inputs, functionality)
+  return(P)

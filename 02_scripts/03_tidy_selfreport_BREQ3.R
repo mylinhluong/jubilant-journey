@@ -28,7 +28,7 @@
 # -recoded of Qualtrics values into a 0-4 scale
 # -calculated the mean score of each set of items (using psych package)
 
-data_BREQ=data %>% 
+data_breq=data %>% 
   select(ID,breq3_id1:breq3_ext4) %>% 
   mutate(across(starts_with("breq3"),
     ~(case_when(.== 1 ~ 0,

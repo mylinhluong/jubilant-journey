@@ -1,0 +1,5 @@
+"","Mean for female if chosen","Mean for female if not chosen","t-test for difference","Mean for business if chosen","Mean for business if not chosen","t-test for difference","Mean for income if chosen","Mean for income if not chosen","t-test for difference"
+"car",0.4858,0.5401,1.29,0.2551,0.4006,3.77,53317.8704,51278.1365,-1.87
+"bus",0.5309,0.4842,-0.79,0.1111,0.3744,6.53,47824.6543,52430.3045,3.18
+"air",0.4914,0.4826,-0.19,0.4057,0.2815,-2.83,52568.4,50945.7962,-1.37
+"rail",0.4821,0.5012,0.48,0.4582,0.2718,-4.83,51452.9681,51948.9401,0.47

@@ -19,8 +19,12 @@ data_age<-data%>%
   mutate(DOB=dmy(DOB))%>%
   mutate(enddate=as_date(enddate, tz = NULL))%>%
   mutate(age_interval=DOB%--% enddate) %>% 
-  mutate(age_years=age_interval %/% years(1)) %>% 
+  mutate(age_years=age_interval %/% years(1)) %>%
+  mutate(age_years=case_when(age_years<=100~age_years,
+                             TRUE ~ NA_real_)) %>% 
   select(ID,age=age_years)
+  
+ 
 
 #Data cleaning for height, weight and BMI
 #Used data editing/cleaning from https://melbourneinstitute.unimelb.edu.au/assets/documents/hilda-bibliography/hilda-technical-papers/htec108.pdf
@@ -36,7 +40,7 @@ data_age<-data%>%
 #W  35kgs   300kgs    25kgs   300kgs
 
 #ID=unique participant ID
-#gender: 1=M, 2=F
+#gender: 1=F, 2=M
 #weight=in kg
 #height=in cm
 
@@ -54,23 +58,23 @@ num_row = 1
 for (r in 1:nrow(data_BMI)) {
   print(r)
   
-  #1st layer: gender-males
+  #1st layer: gender-females
   if (data_BMI[r,'gender'] == 1){
     #2nd layer: height and weight  
-    if (!(data_BMI[r,'height']%in% 130:229)){
-      data_BMI[r,'height']= NA_integer_
-    }
-    if (!(data_BMI[r,'weight']%in% 35:300)){
-      data_BMI[r,'weight']= NA_integer_}
-  }
-  
-  #1st layer: gender-females
-  if (data_BMI[r,'gender'] == 2){
-    #2nd layer: height and weight
     if (!(data_BMI[r,'height']%in% 110:210)){
       data_BMI[r,'height']= NA_integer_
     }
     if (!(data_BMI[r,'weight']%in% 25:300)){
+      data_BMI[r,'weight']= NA_integer_}
+  }
+  
+  #1st layer: gender-males
+  if (data_BMI[r,'gender'] == 2){
+    #2nd layer: height and weight
+    if (!(data_BMI[r,'height']%in% 130:229)){
+      data_BMI[r,'height']= NA_integer_
+    }
+    if (!(data_BMI[r,'weight']%in% 35:300)){
       data_BMI[r,'weight']= NA_integer_}
   }
   
@@ -103,8 +107,24 @@ data_sociodems<-data %>%
   arrange(desc(BMI_calc)) %>% 
   mutate(BMI_calc=ifelse(BMI_calc>50,NA_integer_,BMI_calc))%>%
   mutate(BMI_calc=ifelse(BMI_calc<15,NA_integer_,BMI_calc)) %>% 
-  select(ID, gender, age, BMI_calc, income, employed, household, state)
+  mutate(BMI_recode=case_when(between(BMI_calc, 0,18.49)~"underweight",
+                              between(BMI_calc, 18.5, 24.49)~"healthy",
+                              between(BMI_calc,25,29.9)~"overweight",
+                              BMI_calc>=30~"obese",
+                              TRUE~NA_character_)) %>% 
+  mutate(income_recode=case_when(income<=2~"low",
+                              between(income, 3,4)~"medium",
+                              income==5~"high",
+                              TRUE~NA_character_)) %>% 
+  select(ID, gender, age, BMI_calc, BMI_recode, income,income_recode, employed, household, state)
 
+  
+  # mutate(VigMin= case_when(VigHours>=10~VigHours,
+  #                          VigHours==0.5~30,
+  #                          VigMin<10~0,
+  #                          (VigDays+ModDays+WalkDays>=1 & is.na(VigMin))~0,
+  #                          TRUE~VigMin))
+###FOR FUTURE REVISIONS
 # #HEIGHT AND WEIGHT DATA CLEANING & BMI CALC using mutate as opposed to for loop
 # #select cols, only if gender is reported
 # data_BMI<-data %>% 
@@ -112,26 +132,9 @@ data_sociodems<-data %>%
 #   filter(!is.na(gender))
 # 
 # #check on values
-# data_BMI_m<-data%>%
-#   select(ID, gender, height, weight)%>%
-#   filter(gender==1)%>%
-#   arrange(desc(height))%>%
-#   #   ID                              gender height weight
-#   #1 8195fb32-114a-0e35-9f7e-ccbe0~      1      0      0
-#   #2 918fc53a-f83c-1bae-fe76-f2a4b~      1     63     93
-#   #3 78c3c5a7-f7d2-6c16-b2eb-f2e88~      1     73     90
-#   #4 1d7630f7-aa29-2c78-07bb-075da~      1    121     52
-#   arrange(desc(weight))
-# #   ID                              gender height weight
-# #1 8195fb32-114a-0e35-9f7e-ccbe02~      1      0      0
-# #2 b9a3796f-403c-1822-a823-4e8864~      1    158     10
-# 
-# #head(data_BMI_m)
-# #tail(data_BMI_m)
-# 
 # data_BMI_f<-data%>%
 #   select(ID, gender, height, weight)%>%
-#   filter(gender==2)%>%
+#   filter(gender==1)%>%
 #   arrange(desc(height))%>%
 #   #  ID                                   gender height weight
 #   #UPPER#
@@ -147,9 +150,32 @@ data_sociodems<-data %>%
 # #head(data_BMI_f)
 # #tail(data_BMI_f)
 
+# data_BMI_m<-data%>%
+#   select(ID, gender, height, weight)%>%
+#   filter(gender==2)%>%
+#   arrange(desc(height))%>%
+#   #   ID                              gender height weight
+#   #1 8195fb32-114a-0e35-9f7e-ccbe0~      1      0      0
+#   #2 918fc53a-f83c-1bae-fe76-f2a4b~      1     63     93
+#   #3 78c3c5a7-f7d2-6c16-b2eb-f2e88~      1     73     90
+#   #4 1d7630f7-aa29-2c78-07bb-075da~      1    121     52
+#   arrange(desc(weight))
+# #   ID                              gender height weight
+# #1 8195fb32-114a-0e35-9f7e-ccbe02~      1      0      0
+# #2 b9a3796f-403c-1822-a823-4e8864~      1    158     10
+# 
+# #head(data_BMI_m)
+# #tail(data_BMI_m)
+# 
+
+
 
 #View(data_BMI)
 
-
+##Resources
+#Age calculations 
+##://jenrichmond.rbind.io/post/calculating-age/
+##Working with dates and time in R using the lubridate package: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/
+##https://stackoverflow.com/questions/41668795/using-mutate-with-dates-gives-numerical-values
 #https://blog.usejournal.com/the-ultimate-r-guide-to-process-missing-or-outliers-in-dataset-65e2e59625c1
 #https://www.pluralsight.com/guides/cleaning-up-data-from-outliers

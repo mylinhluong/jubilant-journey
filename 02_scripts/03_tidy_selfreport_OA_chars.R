@@ -35,4 +35,9 @@ data_OA_chars<-data%>%
     NICE_age==1 & NICE_activity==1 & (NICE_stiffness==1 & NICE_stiffness_min==1 |NICE_stiffness==0) ~1, 
     NICE_age !=1 | NICE_activity !=1|NICE_stiffness_min==2 ~0, 
     TRUE ~ NA_real_)) %>% 
-  select(ID, joint_study, joint_number, joint_multi, NICE_diagnosis, pain_NRS, function_NRS, hipL:footR)
+  mutate(pain_recode=case_when(pain_NRS<=5~"mild",
+                               between(pain_NRS, 6,7)~"moderate",
+                               pain_NRS>=8~"severe",
+                               TRUE~NA_character_)) %>% 
+  select(ID, joint_study, joint_number, joint_multi, NICE_diagnosis, pain_NRS, pain_recode, function_NRS, hipL:footR)
+  
