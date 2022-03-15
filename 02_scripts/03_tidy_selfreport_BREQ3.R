@@ -41,8 +41,8 @@ data_breq=data %>%
   mutate(amotivation= rowMeans(across(breq3_amov1:breq3_amov4)))%>%
   mutate(intrinsic= rowMeans(across(breq3_intrins1:breq3_intrins4)))%>%
   mutate(integrated= rowMeans(across(breq3_integ1:breq3_integ4)))%>%
-  mutate(extrinsic= rowMeans(across(breq3_ext1:breq3_ext4)))%>%
-  select(ID, identified, amotivation, intrinsic, integrated, extrinsic)
+  mutate(external= rowMeans(across(breq3_ext1:breq3_ext4)))%>%
+  select(ID, identified, amotivation, intrinsic, integrated, external)
 
 #RESOURCES
 #https://jmgirard.com/rowwise-means/

@@ -5,7 +5,7 @@
 # -Data cleaning for height and weight to deal with extremely unlikely value
 # -BMI: BMI calculation based on height and weight
 # -join
-#Gender
+#Sex
 #Employment status
 #Income level
 #Household status
@@ -16,8 +16,8 @@
 ####enddate in MM/DD/YYYY HH:MM:SS mdy_HMS
 data_age<-data%>%
   select(ID, DOB, enddate)%>%
-  mutate(DOB=dmy(DOB))%>%
-  mutate(enddate=as_date(enddate, tz = NULL))%>%
+  mutate(DOB=dmy(DOB)) %>%
+  mutate(enddate=as.Date(enddate, format="%m/%d/%Y")) %>% 
   mutate(age_interval=DOB%--% enddate) %>% 
   mutate(age_years=age_interval %/% years(1)) %>%
   mutate(age_years=case_when(age_years<=100~age_years,
@@ -40,7 +40,7 @@ data_age<-data%>%
 #W  35kgs   300kgs    25kgs   300kgs
 
 #ID=unique participant ID
-#gender: 1=F, 2=M
+#sex: 1=F, 2=M
 #weight=in kg
 #height=in cm
 
@@ -94,7 +94,7 @@ data_BMI<-data_BMI%>%
 
 
 #DEALING WITH REMAINING SOCIODEMOGRAPHICS + MERGING WITH CLEANED HEIGHT, WEIGHT & BMI DATA
-#converting str of data: income, employment status, household status, state and gender to factors
+#converting str of data: income, employment status, household status, state and sex to factors
 #merge sociodemographic datasets: above + age + BMI
 #BMI: replace extremely unlikely values of height and weight combination that led to a BMI of 
 #less than 15 or more than 50 with NA_integer_.
@@ -116,7 +116,7 @@ data_sociodems<-data %>%
                               between(income, 3,4)~"medium",
                               income==5~"high",
                               TRUE~NA_character_)) %>% 
-  select(ID, gender, age, BMI_calc, BMI_recode, income,income_recode, employed, household, state)
+  select(ID, sex=gender, age, BMI_calc, BMI_recode, income,income_recode, employed, household, state)
 
   
   # mutate(VigMin= case_when(VigHours>=10~VigHours,
@@ -125,8 +125,9 @@ data_sociodems<-data %>%
   #                          (VigDays+ModDays+WalkDays>=1 & is.na(VigMin))~0,
   #                          TRUE~VigMin))
 ###FOR FUTURE REVISIONS
-# #HEIGHT AND WEIGHT DATA CLEANING & BMI CALC using mutate as opposed to for loop
-# #select cols, only if gender is reported
+#update gender to sex in clean names code 
+#HEIGHT AND WEIGHT DATA CLEANING & BMI CALC using mutate as opposed to for loop
+# #select cols, only if sex is reported
 # data_BMI<-data %>% 
 #   select(ID, gender, height, weight)%>% 
 #   filter(!is.na(gender))
@@ -176,6 +177,9 @@ data_sociodems<-data %>%
 #Age calculations 
 ##://jenrichmond.rbind.io/post/calculating-age/
 ##Working with dates and time in R using the lubridate package: https://data.library.virginia.edu/working-with-dates-and-time-in-r-using-the-lubridate-package/
-##https://stackoverflow.com/questions/41668795/using-mutate-with-dates-gives-numerical-values
+##
+#https://www.r4epi.com/working-with-dates.html
+#https://stackoverflow.com/questions/41668795/using-mutate-with-dates-gives-numerical-values
 #https://blog.usejournal.com/the-ultimate-r-guide-to-process-missing-or-outliers-in-dataset-65e2e59625c1
 #https://www.pluralsight.com/guides/cleaning-up-data-from-outliers
+#no longer worked mutate(enddate=as_date(enddate, tz = NULL))%>%

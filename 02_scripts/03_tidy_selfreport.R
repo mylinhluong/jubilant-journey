@@ -9,8 +9,8 @@
   # sociodemographics
 
 #CHECK PACKRAT TO DELETE
-install.packages("summarytools") #https://statsandr.com/blog/descriptive-statistics-in-r/
-install.packages("gtsummary")
+#install.packages("summarytools") #https://statsandr.com/blog/descriptive-statistics-in-r/
+#install.packages("gtsummary")
 #transform mutate_at to across https://dplyr.tidyverse.org/dev/articles/colwise.html
 #https://www.tidyverse.org/blog/2020/04/dplyr-1-0-0-colwise/
 #https://stackoverflow.com/questions/49396267/dplyr-rowwise-sum-and-other-functions-like-max 
@@ -53,6 +53,8 @@ source(here("02_scripts", "03_tidy_selfreport_sensitivity.R"))
 # calculating age from date of birth, cleaning height & weight data, calculating BMI
 source(here("02_scripts", "03_tidy_selfreport_sociodems.R"))
 
+
+
 ###### Creating tidy self-report data#####
 data_SR_processed<-data_aversion %>% 
   left_join(data_breq, by="ID") %>% 
@@ -61,30 +63,33 @@ data_SR_processed<-data_aversion %>%
   left_join(data_sociodems, by="ID") %>% 
   left_join(data_sensitivity, by="ID") %>%
   mutate(across(c(ID, aversion_version, joint_study, joint_multi,
-              NICE_diagnosis, pain_recode, hipL:PA_typical,FiveDays:gender,BMI_recode: DCE_mono),as.factor)) %>%
-  mutate(across(c(VigDays:METs_Total),as.numeric)) %>% 
-  filter(!is.na(DCE_mono))%>%
-  filter(DCE_mono==1)
-
-data_SR_processed_sens<-data_aversion %>% 
-  left_join(data_breq, by="ID") %>% 
-  left_join(data_OA_chars, by="ID") %>% 
-  left_join(data_ipaq, by="ID") %>% 
-  left_join(data_sociodems, by="ID") %>% 
-  left_join(data_sensitivity, by="ID") %>%
-  #mutate(across(c(ID, aversion_version, joint_study, joint_multi,
-  #NICE_diagnosis,pain_recode, hipL:PA_typical,FiveDays:gender,BMI_recode: DCE_mono),as.factor)) %>%
+  NICE_diagnosis,pain_recode, hipL:PA_clinical_cutpoint,FiveDays:sex,BMI_recode: DCE_mono),as.factor)) %>%
   mutate(across(c(VigDays:METs_Total),as.numeric)) %>% 
   filter(!is.na(DCE_mono))
-  
+#View(data_SR_processed)
+
+#these data exclude participants for whom choice monontonicity is assumed to hold
+data_SR_processed_sensitivity<-data_aversion %>%
+  left_join(data_breq, by="ID") %>%
+  left_join(data_OA_chars, by="ID") %>%
+  left_join(data_ipaq, by="ID") %>%
+  left_join(data_sociodems, by="ID") %>%
+  left_join(data_sensitivity, by="ID") %>%
+  mutate(across(c(ID, aversion_version, joint_study, joint_multi,
+              NICE_diagnosis, pain_recode, hipL:PA_clinical_cutpoint,FiveDays:sex,BMI_recode: DCE_mono),as.factor)) %>%
+  mutate(across(c(VigDays:METs_Total),as.numeric)) %>%
+  filter(!is.na(DCE_mono))%>%
+  filter(DCE_mono==1)
+#View(data_SR_processed_sensitivity)
+
 
 #Save object to an rds file to preserve column data types
 # saveRDS(data_SR_processed,"01_data/02_processed/data_SR_processed.rds")
-# saveRDS(data_SR_processed_sens,"01_data/02_processed/data_SR_processed_sens.rds")
+# saveRDS(data_SR_processed_sensitivity,"01_data/02_processed/data_SR_processed_sensitivity.rds")
 # 
 # #Write to CSV file
 # write.csv(data_SR_processed,"01_data/02_processed/data_SR_processed.csv", row.names=FALSE)
-# write.csv(data_SR_processed_sens,"01_data/02_processed/data_SR_processed_sens.csv", row.names=FALSE)
+# write.csv(data_SR_processed_sensitivity,"01_data/02_processed/data_SR_processed_sensitivity.csv", row.names=FALSE)
 
 # #end of script
 # #close the error message catching script and save the file
@@ -94,116 +99,61 @@ data_SR_processed_sens<-data_aversion %>%
 # #Open the .txt file for inspection
 # readLines(here("02_scripts","Errors", "03_tidy_selfreport.txt"))
 
-str(data_SR_processed)
-# tibble [288 x 50] (S3: tbl_df/tbl/data.frame)
-# $ ID                : Factor w/ 387 levels "00528be0-0b09-4a3f-24ac-bc796b309825",..: 111 164 218 244 327 361 385 160 321 333 ...
-# $ aversion_version  : Factor w/ 2 levels "1","2": 2 1 1 2 1 2 2 1 1 1 ...
-# $ risk_score        : num [1:288] 1 6 12 12 8 12 12 6 12 9 ...
-# $ loss_score        : num [1:288] 1 1 2 12 1 1 1 1 12 1 ...
-# $ identified        : num [1:288] 3 3.5 1 2.75 1.75 4 1.75 2 2 4 ...
-# $ amotivation       : num [1:288] 3 0 0 2 1.75 0 0.25 2 0 3 ...
-# $ intrinsic         : num [1:288] 3 3.75 0 3 1.25 3 2.25 2 2.5 3.75 ...
-# $ integrated        : num [1:288] 3.25 3 0 2.75 1.25 4 1 2 2.75 4 ...
-# $ extrinsic         : num [1:288] 3 0.25 0 2.25 2 0 0.25 2 0 4 ...
-# $ joint_study       : Factor w/ 8 levels "1","2","3","4",..: 1 5 4 6 7 3 6 4 4 6 ...
-# $ joint_number      : num [1:288] 1 3 2 2 4 2 2 2 2 2 ...
-# $ joint_multi       : Factor w/ 2 levels "0","1": 1 2 2 2 2 2 2 2 2 2 ...
-# $ NICE_diagnosis    : Factor w/ 2 levels "0","1": 2 2 2 1 1 1 2 2 1 2 ...
-# $ pain_NRS          : num [1:288] 7 5 7 5 7 6 5 7 3 7 ...
-# $ pain_recode       : Factor w/ 3 levels "mild","moderate",..: 2 1 2 1 2 2 1 2 1 2 ...
-# $ function_NRS      : num [1:288] 7 3 8 5 7 8 2 7 4 7 ...
-# $ hipL              : Factor w/ 2 levels "0","1": 2 1 1 1 1 1 1 1 1 1 ...
-# $ hipR              : Factor w/ 2 levels "0","1": 1 1 1 1 1 2 1 1 2 1 ...
-# $ ankleL            : Factor w/ 2 levels "0","1": 1 2 1 1 2 1 1 1 1 1 ...
-# $ ankleR            : Factor w/ 2 levels "0","1": 1 2 1 1 2 1 1 1 1 1 ...
-# $ kneeL             : Factor w/ 2 levels "0","1": 1 1 2 1 1 2 2 2 1 1 ...
-# $ kneeR             : Factor w/ 2 levels "0","1": 1 1 2 2 1 1 1 2 2 1 ...
-# $ footL             : Factor w/ 2 levels "0","1": 1 2 1 2 2 1 2 1 1 2 ...
-# $ footR             : Factor w/ 2 levels "0","1": 1 1 1 1 2 1 1 1 1 2 ...
-# $ PA_typical        : Factor w/ 3 levels "1","2","3": 3 1 1 1 1 1 1 NA 1 2 ...
-# $ VigDays           : num [1:288] 4 0 0 5 0 3 1 NA 0 4 ...
-# $ TotalVigMin_trunc : num [1:288] 720 0 0 150 0 60 30 NA 0 1440 ...
-# $ ModDays           : num [1:288] 4 0 0 5 0 7 2 NA 0 0 ...
-# $ TotalModMin_trunc : num [1:288] 720 0 0 150 0 420 120 NA 0 0 ...
-# $ WalkDays          : num [1:288] 3 7 1 7 6 7 5 NA 7 7 ...
-# $ TotalWalkMin_trunc: num [1:288] 540 0 0 175 180 140 100 NA 210 420 ...
-# $ TotalPAMin_trunc  : num [1:288] 1980 0 0 475 180 620 250 NA 210 1860 ...
-# $ METs_Vig          : num [1:288] 5760 0 0 1200 0 ...
-# $ METs_Mod          : num [1:288] 2880 0 0 600 0 1680 480 NA 0 0 ...
-# $ METs_Walk         : num [1:288] 1782 0 0 578 594 ...
-# $ METs_Total        : num [1:288] 10422 0 0 2378 594 ...
-# $ FiveDays          : Factor w/ 2 levels "0","1": 2 2 1 2 2 2 2 NA 2 2 ...
-# $ SevenDays         : Factor w/ 2 levels "0","1": 2 2 1 2 1 2 2 NA 2 2 ...
-# $ IPAQ_cat          : Factor w/ 3 levels "1","2","3": 3 NA NA 3 2 3 2 NA 2 3 ...
-# $ gender            : Factor w/ 2 levels "1","2": 2 1 2 1 1 1 1 1 2 2 ...
-# $ age               : num [1:288] 51 70 51 50 64 50 55 47 60 54 ...
-# $ BMI_calc          : num [1:288] NA 23 28 24 24 18 32 22 26 NA ...
-# $ BMI_recode        : Factor w/ 4 levels "healthy","obese",..: NA 1 3 1 1 4 2 1 3 NA ...
-# $ income            : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 5 3 6 1 3 5 2 ...
-# $ income_recode     : Factor w/ 3 levels "high","low","medium": 2 2 3 1 3 NA 2 3 1 2 ...
-# $ employed          : Factor w/ 2 levels "1","2": 2 2 2 1 2 2 2 2 1 2 ...
-# $ household         : Factor w/ 3 levels "1","2","4": 1 1 2 2 2 2 2 2 2 2 ...
-# $ state             : Factor w/ 8 levels "1","2","3","4",..: 6 6 4 4 1 1 1 6 5 1 ...
-# $ DCE_mono          : Factor w/ 2 levels "0","1": 2 2 2 2 2 2 2 2 2 2 ...
-# $ duration          : num [1:288] 439 721 495 708 914 583 995 960 831 808 ...
-summary(data_SR_processed)
-#                                    ID      aversion_version   risk_score       loss_score      identified   
-# 00528be0-0b09-4a3f-24ac-bc796b309825:  1   1:143            Min.   : 0.000   Min.   : 0.00   Min.   :0.000  
-# 01aa1bbe-843c-c35c-dcf2-2c816964ce6f:  1   2:145            1st Qu.: 5.000   1st Qu.: 1.00   1st Qu.:2.250  
-# 028a7395-1463-aeb0-fbd9-44a167323f51:  1                    Median :11.000   Median : 1.00   Median :3.000  
-# 04b04ad4-f56c-72b6-c698-7d9b2a546f11:  1                    Mean   : 8.253   Mean   : 3.51   Mean   :2.826  
-# 05df3ec6-f594-6343-a98a-09f4804aa700:  1                    3rd Qu.:12.000   3rd Qu.: 6.00   3rd Qu.:3.500  
-# 0691c602-3175-2b96-9b4e-f1bafe7b24cc:  1                    Max.   :12.000   Max.   :12.00   Max.   :4.000  
-# (Other)                             :282                                                     NA's   :3      
-# amotivation       intrinsic       integrated      extrinsic      joint_study  joint_number   joint_multi NICE_diagnosis
-# Min.   :0.0000   Min.   :0.000   Min.   :0.000   Min.   :0.000   4      :62   Min.   :0.000   0: 89       0   :121      
-# 1st Qu.:0.0000   1st Qu.:1.500   1st Qu.:1.500   1st Qu.:0.000   2      :48   1st Qu.:1.000   1:199       1   :162      
-# Median :0.0000   Median :2.250   Median :2.250   Median :1.000   3      :48   Median :2.000               NA's:  5      
-# Mean   :0.5132   Mean   :2.303   Mean   :2.284   Mean   :1.016   1      :38   Mean   :2.451                             
-# 3rd Qu.:1.0000   3rd Qu.:3.250   3rd Qu.:3.000   3rd Qu.:1.750   6      :25   3rd Qu.:3.000                             
-# Max.   :3.7500   Max.   :4.000   Max.   :4.000   Max.   :4.000   (Other):55   Max.   :8.000                             
-# NA's   :3        NA's   :3       NA's   :3       NA's   :3       NA's   :12                                             
-# pain_NRS        pain_recode   function_NRS   hipL    hipR    ankleL  ankleR  kneeL   kneeR   footL   footR   PA_typical
-# Min.   : 1.000   mild    :158   Min.   : 0.00   0:202   0:191   0:235   0:234   0:167   0:143   0:215   0:211   1   :212  
-# 1st Qu.: 4.000   moderate: 93   1st Qu.: 3.00   1: 86   1: 97   1: 53   1: 54   1:121   1:145   1: 73   1: 77   2   : 22  
-# Median : 5.000   severe  : 32   Median : 5.00                                                                   3   : 31  
-# Mean   : 5.184   NA's    :  5   Mean   : 5.12                                                                   NA's: 23  
-# 3rd Qu.: 7.000                  3rd Qu.: 7.00                                                                             
-# Max.   :10.000                  Max.   :10.00                                                                             
-# NA's   :5                       NA's   :5                                                                                 
-# VigDays      TotalVigMin_trunc    ModDays     TotalModMin_trunc    WalkDays     TotalWalkMin_trunc TotalPAMin_trunc
-# Min.   :0.000   Min.   :   0.0    Min.   :0.00   Min.   :   0      Min.   :0.000   Min.   :   0       Min.   :   0.0  
-# 1st Qu.:0.000   1st Qu.:   0.0    1st Qu.:0.00   1st Qu.:   0      1st Qu.:3.000   1st Qu.:  90       1st Qu.: 200.0  
-# Median :2.000   Median :  45.0    Median :2.00   Median :  60      Median :5.000   Median : 210       Median : 420.0  
-# Mean   :2.113   Mean   : 158.5    Mean   :2.23   Mean   : 163      Mean   :4.947   Mean   : 298       Mean   : 619.5  
-# 3rd Qu.:4.000   3rd Qu.: 240.0    3rd Qu.:4.00   3rd Qu.: 210      3rd Qu.:7.000   3rd Qu.: 420       3rd Qu.: 810.0  
-# Max.   :7.000   Max.   :1440.0    Max.   :7.00   Max.   :1260      Max.   :7.000   Max.   :1260       Max.   :3060.0  
-# NA's   :23      NA's   :23        NA's   :23     NA's   :23        NA's   :23      NA's   :23         NA's   :23      
-# METs_Vig        METs_Mod        METs_Walk        METs_Total    FiveDays   SevenDays  IPAQ_cat    gender   
-# Min.   :    0   Min.   :   0.0   Min.   :   0.0   Min.   :    0   0   : 41   0   : 77   1   : 46   1   :165  
-# 1st Qu.:    0   1st Qu.:   0.0   1st Qu.: 297.0   1st Qu.:  792   1   :224   1   :188   2   : 86   2   :117  
-# Median :  360   Median : 240.0   Median : 693.0   Median : 2034   NA's: 23   NA's: 23   3   :119   NA's:  6  
-#  Mean   : 1268   Mean   : 651.9   Mean   : 983.4   Mean   : 2903                         NA's: 37             
-# 3rd Qu.: 1920   3rd Qu.: 840.0   3rd Qu.:1386.0   3rd Qu.: 3804                                              
-# Max.   :11520   Max.   :5040.0   Max.   :4158.0   Max.   :15210                                              
-# NA's   :23      NA's   :23       NA's   :23       NA's   :23                                                 
-# age           BMI_calc           BMI_recode   income    income_recode employed   household      state    DCE_mono
-# Min.   :45.00   Min.   :16.00   healthy    : 50   1   : 14   high  : 19    1   :108   1   : 55   4      :80   0:  0   
-# 1st Qu.:52.00   1st Qu.:25.00   obese      :110   2   : 66   low   : 80    2   :174   2   :225   6      :78   1:288   
-# Median :60.00   Median :28.00   overweight :102   3   :108   medium:161    NA's:  6   4   :  1   5      :60           
-#  Mean   :59.97   Mean   :29.15   underweight:  4   4   : 53   NA's  : 28               NA's:  7   3      :30           
-#  3rd Qu.:66.00   3rd Qu.:32.00   NA's       : 22   5   : 19                                       1      :22           
-# Max.   :86.00   Max.   :50.00                     6   : 22                                       (Other):12           
-# NA's   :9       NA's   :22                        NA's:  6                                       NA's   : 6           
-# duration      
-# Min.   :  293.0  
-# 1st Qu.:  846.8  
-# Median : 1059.0  
-# Mean   : 1481.8  
-# 3rd Qu.: 1436.0  
-# Max.   :20424.0 
+# str(data_SR_processed)
+# # tibble [310 x 51] (S3: tbl_df/tbl/data.frame)
+# $ ID                   : Factor w/ 387 levels "00528be0-0b09-4a3f-24ac-bc796b309825",..: 111 164 218 244 327 361 385 160 321 333 ...
+# $ aversion_version     : Factor w/ 2 levels "1","2": 2 1 1 2 1 2 2 1 1 1 ...
+# $ risk_score           : num [1:310] 1 6 12 12 8 12 12 6 12 9 ...
+# $ loss_score           : num [1:310] 1 1 2 12 1 1 1 1 12 1 ...
+# $ identified           : num [1:310] 3 3.5 1 2.75 1.75 4 1.75 2 2 4 ...
+# $ amotivation          : num [1:310] 3 0 0 2 1.75 0 0.25 2 0 3 ...
+# $ intrinsic            : num [1:310] 3 3.75 0 3 1.25 3 2.25 2 2.5 3.75 ...
+# $ integrated           : num [1:310] 3.25 3 0 2.75 1.25 4 1 2 2.75 4 ...
+# $ external             : num [1:310] 3 0.25 0 2.25 2 0 0.25 2 0 4 ...
+# $ joint_study          : Factor w/ 8 levels "1","2","3","4",..: 1 5 4 6 7 3 6 4 4 6 ...
+# $ joint_number         : num [1:310] 1 3 2 2 4 2 2 2 2 2 ...
+# $ joint_multi          : Factor w/ 2 levels "0","1": 1 2 2 2 2 2 2 2 2 2 ...
+# $ NICE_diagnosis       : Factor w/ 2 levels "0","1": 2 2 2 1 1 1 2 2 1 2 ...
+# $ pain_NRS             : num [1:310] 7 5 7 5 7 6 5 7 3 7 ...
+# $ pain_recode          : Factor w/ 3 levels "mild","moderate",..: 2 1 2 1 2 2 1 2 1 2 ...
+# $ function_NRS         : num [1:310] 7 3 8 5 7 8 2 7 4 7 ...
+# $ hipL                 : Factor w/ 2 levels "0","1": 2 1 1 1 1 1 1 1 1 1 ...
+# $ hipR                 : Factor w/ 2 levels "0","1": 1 1 1 1 1 2 1 1 2 1 ...
+# $ ankleL               : Factor w/ 2 levels "0","1": 1 2 1 1 2 1 1 1 1 1 ...
+# $ ankleR               : Factor w/ 2 levels "0","1": 1 2 1 1 2 1 1 1 1 1 ...
+# $ kneeL                : Factor w/ 2 levels "0","1": 1 1 2 1 1 2 2 2 1 1 ...
+# $ kneeR                : Factor w/ 2 levels "0","1": 1 1 2 2 1 1 1 2 2 1 ...
+# $ footL                : Factor w/ 2 levels "0","1": 1 2 1 2 2 1 2 1 1 2 ...
+# $ footR                : Factor w/ 2 levels "0","1": 1 1 1 1 2 1 1 1 1 2 ...
+# $ PA_typical           : Factor w/ 3 levels "1","2","3": 3 1 1 1 1 1 1 2 1 2 ...
+# $ VigDays              : num [1:310] 5 1 1 6 1 4 2 1 1 5 ...
+# $ DailyVigMin_trunc    : num [1:310] 21 1 1 6 1 4 6 NA 1 21 ...
+# $ ModDays              : num [1:310] 5 1 1 6 1 8 3 1 1 1 ...
+# $ DailyModMin_trunc    : num [1:310] 19 1 1 6 1 10 10 NA 1 1 ...
+# $ WalkDays             : num [1:310] 4 8 2 8 7 8 6 1 8 8 ...
+# $ DailyWalkMin_trunc   : num [1:310] 22 1 1 6 7 5 5 NA 7 12 ...
+# $ TotalDailyPAMin_trunc: num [1:310] 56 1 1 17 6 20 22 NA 6 40 ...
+# $ METs_Vig             : num [1:310] 34 1 1 14 1 9 5 NA 1 34 ...
+# $ METs_Mod             : num [1:310] 34 1 1 16 1 28 12 NA 1 1 ...
+# $ METs_Walk            : num [1:310] 38 1 1 19 20 17 13 NA 22 34 ...
+# $ METs_Total           : num [1:310] 208 1 1 105 23 114 46 NA 28 199 ...
+# $ FiveDays             : Factor w/ 2 levels "0","1": 2 2 1 2 2 2 2 1 2 2 ...
+# $ SevenDays            : Factor w/ 2 levels "0","1": 2 2 1 2 1 2 2 1 2 2 ...
+# $ IPAQ_cat             : Factor w/ 3 levels "1","2","3": 3 1 1 3 2 3 2 1 2 3 ...
+# $ PA_clinical_cutpoint : Factor w/ 2 levels "0","1": 2 1 1 2 1 2 2 NA 1 2 ...
+# $ sex               : Factor w/ 2 levels "1","2": 2 1 2 1 1 1 1 1 2 2 ...
+# $ age                  : num [1:310] 51 70 51 50 64 50 55 47 60 54 ...
+# $ BMI_calc             : num [1:310] NA 23 28 24 24 18 32 22 26 NA ...
+# $ BMI_recode           : Factor w/ 4 levels "healthy","obese",..: NA 1 3 1 1 4 2 1 3 NA ...
+# $ income               : Factor w/ 6 levels "1","2","3","4",..: 1 2 3 5 3 6 1 3 5 2 ...
+# $ income_recode        : Factor w/ 3 levels "high","low","medium": 2 2 3 1 3 NA 2 3 1 2 ...
+# $ employed             : Factor w/ 2 levels "1","2": 2 2 2 1 2 2 2 2 1 2 ...
+# $ household            : Factor w/ 3 levels "1","2","4": 1 1 2 2 2 2 2 2 2 2 ...
+# $ state                : Factor w/ 8 levels "1","2","3","4",..: 6 6 4 4 1 1 1 6 5 1 ...
+# $ DCE_mono             : Factor w/ 2 levels "0","1": 2 2 2 2 2 2 2 2 2 2 ...
+#$ duration             : num [1:310] 439 721 495 708 914 583 995 960 831 808 ...
 
-summary(data_SR_processed_sens)
+#summary(data_SR_processed)
 #                                    ID      aversion_version   risk_score       loss_score       identified   
 # 00528be0-0b09-4a3f-24ac-bc796b309825:  1   1:154            Min.   : 0.000   Min.   : 0.000   Min.   :0.000  
 # 01394623-b527-bfb2-486f-711230d5bfe3:  1   2:156            1st Qu.: 5.000   1st Qu.: 1.000   1st Qu.:2.250  
@@ -212,87 +162,134 @@ summary(data_SR_processed_sens)
 # 046f49fe-186f-e943-1eb2-7e44c9ce4236:  1                    3rd Qu.:12.000   3rd Qu.: 5.000   3rd Qu.:3.500  
 # 04b04ad4-f56c-72b6-c698-7d9b2a546f11:  1                    Max.   :12.000   Max.   :12.000   Max.   :4.000  
 # (Other)                             :304                                                      NA's   :3      
-# amotivation       intrinsic       integrated      extrinsic      joint_study  joint_number   joint_multi NICE_diagnosis
-# Min.   :0.0000   Min.   :0.000   Min.   :0.000   Min.   :0.000   4      :70   Min.   :0.000   0:101       0   :131      
-# 1st Qu.:0.0000   1st Qu.:1.500   1st Qu.:1.500   1st Qu.:0.000   3      :52   1st Qu.:1.000   1:209       1   :173      
-# Median :0.0000   Median :2.500   Median :2.250   Median :1.000   2      :51   Median :2.000               NA's:  6      
+#   amotivation       intrinsic       integrated       external      joint_study  joint_number   joint_multi NICE_diagnosis
+#  Min.   :0.0000   Min.   :0.000   Min.   :0.000   Min.   :0.000   4      :70   Min.   :0.000   0:101       0   :131      
+#  1st Qu.:0.0000   1st Qu.:1.500   1st Qu.:1.500   1st Qu.:0.000   3      :52   1st Qu.:1.000   1:209       1   :173      
+#  Median :0.0000   Median :2.500   Median :2.250   Median :1.000   2      :51   Median :2.000               NA's:  6      
 # Mean   :0.5448   Mean   :2.352   Mean   :2.341   Mean   :1.061   1      :39   Mean   :2.403                             
 # 3rd Qu.:1.0000   3rd Qu.:3.250   3rd Qu.:3.250   3rd Qu.:1.750   8      :27   3rd Qu.:3.000                             
 # Max.   :4.0000   Max.   :4.000   Max.   :4.000   Max.   :4.000   (Other):58   Max.   :8.000                             
 # NA's   :3        NA's   :3       NA's   :3       NA's   :3       NA's   :13                                             
-# pain_NRS        pain_recode   function_NRS    hipL    hipR    ankleL  ankleR  kneeL   kneeR   footL   footR   PA_typical
-# Min.   : 1.000   mild    :166   Min.   : 0.000   0:221   0:206   0:257   0:250   0:183   0:154   0:235   0:229   1   :227  
-# 1st Qu.: 4.000   moderate: 99   1st Qu.: 3.000   1: 89   1:104   1: 53   1: 60   1:127   1:156   1: 75   1: 81   2   : 24  
-# Median : 5.000   severe  : 39   Median : 5.000                                                                   3   : 33  
-# Mean   : 5.276   NA's    :  6   Mean   : 5.234                                                                   NA's: 26  
-# 3rd Qu.: 7.000                  3rd Qu.: 7.000                                                                             
-# Max.   :10.000                  Max.   :10.000                                                                             
-# NA's   :6                       NA's   :6                                                                                  
-# VigDays      TotalVigMin_trunc    ModDays      TotalModMin_trunc    WalkDays     TotalWalkMin_trunc TotalPAMin_trunc
-# Min.   :0.000   Min.   :   0.0    Min.   :0.000   Min.   :   0.0    Min.   :0.000   Min.   :   0.0     Min.   :   0.0  
-# 1st Qu.:0.000   1st Qu.:   0.0    1st Qu.:0.000   1st Qu.:   0.0    1st Qu.:3.000   1st Qu.:  90.0     1st Qu.: 200.0  
-# Median :2.000   Median :  50.0    Median :2.000   Median :  60.0    Median :5.000   Median : 210.0     Median : 435.0  
-# Mean   :2.179   Mean   : 159.7    Mean   :2.298   Mean   : 164.1    Mean   :4.982   Mean   : 298.4     Mean   : 622.2  
-# 3rd Qu.:4.000   3rd Qu.: 240.0    3rd Qu.:4.000   3rd Qu.: 210.0    3rd Qu.:7.000   3rd Qu.: 420.0     3rd Qu.: 840.0  
-# Max.   :7.000   Max.   :1440.0    Max.   :7.000   Max.   :1260.0    Max.   :7.000   Max.   :1260.0     Max.   :3060.0  
-# NA's   :25      NA's   :25        NA's   :25      NA's   :25        NA's   :25      NA's   :25         NA's   :25      
-# METs_Vig        METs_Mod        METs_Walk        METs_Total    FiveDays   SevenDays  IPAQ_cat    gender   
-# Min.   :    0   Min.   :   0.0   Min.   :   0.0   Min.   :    0   0   : 42   0   : 81   1   : 46   1   :180  
-# 1st Qu.:    0   1st Qu.:   0.0   1st Qu.: 297.0   1st Qu.:  825   1   :243   1   :204   2   : 93   2   :123  
-# Median :  400   Median : 240.0   Median : 693.0   Median : 2034   NA's: 25   NA's: 25   3   :130   NA's:  7  
-# Mean   : 1277   Mean   : 656.5   Mean   : 984.8   Mean   : 2919                         NA's: 41             
-# 3rd Qu.: 1920   3rd Qu.: 840.0   3rd Qu.:1386.0   3rd Qu.: 3816                                              
-# Max.   :11520   Max.   :5040.0   Max.   :4158.0   Max.   :15210                                              
-# NA's   :25      NA's   :25       NA's   :25       NA's   :25                                                 
-# age           BMI_calc           BMI_recode   income    income_recode employed   household      state    DCE_mono
-# Min.   :44.00   Min.   :16.00   healthy    : 55   1   : 15   high  : 20    1   :116   1   : 60   4      :86   0: 22   
-# 1st Qu.:52.00   1st Qu.:25.00   obese      :116   2   : 69   low   : 84    2   :187   2   :241   6      :80   1:288   
-# Median :61.00   Median :28.00   overweight :108   3   :117   medium:174    NA's:  7   4   :  1   5      :67           
-# Mean   :60.15   Mean   :29.02   underweight:  5   4   : 57   NA's  : 32               NA's:  8   3      :33           
-# 3rd Qu.:67.00   3rd Qu.:32.00   NA's       : 26   5   : 20                                       1      :24           
-# Max.   :86.00   Max.   :50.00                     6   : 25                                       (Other):13           
-# NA's   :11      NA's   :26                        NA's:  7                                       NA's   : 7           
-# duration      
-# Min.   :  293.0  
-# 1st Qu.:  846.2  
-# Median : 1060.5  
-# Mean   : 1464.2  
-# 3rd Qu.: 1431.2  
-# Max.   :20424.0  
+#     pain_NRS        pain_recode   function_NRS    hipL    hipR    ankleL  ankleR  kneeL   kneeR   footL   footR   PA_typical
+#  Min.   : 1.000   mild    :166   Min.   : 0.000   0:221   0:206   0:257   0:250   0:183   0:154   0:235   0:229   1   :239  
+#  1st Qu.: 4.000   moderate: 99   1st Qu.: 3.000   1: 89   1:104   1: 53   1: 60   1:127   1:156   1: 75   1: 81   2   : 26  
+#  Median : 5.000   severe  : 39   Median : 5.000                                                                   3   : 37  
+#  Mean   : 5.276   NA's    :  6   Mean   : 5.234                                                                   NA's:  8  
+#  3rd Qu.: 7.000                  3rd Qu.: 7.000                                                                             
+#  Max.   :10.000                  Max.   :10.000                                                                             
+#  NA's   :6                       NA's   :6                                                                                  
+#     VigDays      DailyVigMin_trunc    ModDays      DailyModMin_trunc    WalkDays     DailyWalkMin_trunc TotalDailyPAMin_trunc
+#  Min.   :1.000   Min.   : 1.000    Min.   :1.000   Min.   : 1.000    Min.   :1.000   Min.   : 1.00      Min.   : 1.00        
+#  1st Qu.:1.000   1st Qu.: 1.000    1st Qu.:1.000   1st Qu.: 1.000    1st Qu.:4.000   1st Qu.: 5.00      1st Qu.:12.00        
+#  Median :2.000   Median : 6.000    Median :2.500   Median : 6.000    Median :6.000   Median :10.00      Median :23.00        
+#  Mean   :3.066   Mean   : 6.748    Mean   :3.178   Mean   : 6.633    Mean   :5.694   Mean   :10.23      Mean   :23.48        
+#  3rd Qu.:5.000   3rd Qu.:10.000    3rd Qu.:5.000   3rd Qu.:10.000    3rd Qu.:8.000   3rd Qu.:14.75      3rd Qu.:32.00        
+#  Max.   :8.000   Max.   :21.000    Max.   :8.000   Max.   :19.000    Max.   :8.000   Max.   :22.00      Max.   :56.00        
+#  NA's   :5       NA's   :24        NA's   :6       NA's   :24        NA's   :6       NA's   :24         NA's   :24           
+# METs_Vig        METs_Mod       METs_Walk       METs_Total     FiveDays   SevenDays  IPAQ_cat   PA_clinical_cutpoint
+# Min.   : 1.00   Min.   : 1.00   Min.   : 1.00   Min.   :  1.00   0   : 60   0   : 99   1   : 82   0   :122            
+# 1st Qu.: 1.00   1st Qu.: 1.00   1st Qu.:12.00   1st Qu.: 33.25   1   :244   1   :205   2   : 92   1   :164            
+# Median : 8.50   Median : 8.00   Median :22.00   Median : 90.50   NA's:  6   NA's:  6   3   :131   NA's: 24            
+#  Mean   :11.05   Mean   :11.27   Mean   :22.82   Mean   : 96.34                         NA's:  5                       
+# 3rd Qu.:19.00   3rd Qu.:19.00   3rd Qu.:34.00   3rd Qu.:153.75                                                        
+# Max.   :39.00   Max.   :39.00   Max.   :49.00   Max.   :222.00                                                        
+# NA's   :24      NA's   :24      NA's   :24      NA's   :24                                                            
+# sex         age           BMI_calc           BMI_recode   income    income_recode employed   household      state   
+# 1   :180   Min.   :44.00   Min.   :16.00   healthy    : 55   1   : 15   high  : 20    1   :116   1   : 60   4      :86  
+# 2   :123   1st Qu.:52.00   1st Qu.:25.00   obese      :116   2   : 69   low   : 84    2   :187   2   :241   6      :80  
+# NA's:  7   Median :61.00   Median :28.00   overweight :108   3   :117   medium:174    NA's:  7   4   :  1   5      :67  
+# Mean   :60.15   Mean   :29.02   underweight:  5   4   : 57   NA's  : 32               NA's:  8   3      :33  
+# 3rd Qu.:67.00   3rd Qu.:32.00   NA's       : 26   5   : 20                                       1      :24  
+#             Max.   :86.00   Max.   :50.00                     6   : 25                                       (Other):13  
+#             NA's   :11      NA's   :26                        NA's:  7                                       NA's   : 7  
+#  DCE_mono    duration      
+#  0: 22    Min.   :  293.0  
+#  1:288    1st Qu.:  846.2  
+#           Median : 1060.5  
+#           Mean   : 1464.2  
+#           3rd Qu.: 1431.2  
+#           Max.   :20424.0  
+
+#summary(data_SR_processed_sensitivity)
+# #                                     ID      aversion_version   risk_score       loss_score      identified   
+# 00528be0-0b09-4a3f-24ac-bc796b309825:  1   1:143            Min.   : 0.000   Min.   : 0.00   Min.   :0.000  
+# 01aa1bbe-843c-c35c-dcf2-2c816964ce6f:  1   2:145            1st Qu.: 5.000   1st Qu.: 1.00   1st Qu.:2.250  
+# 028a7395-1463-aeb0-fbd9-44a167323f51:  1                    Median :11.000   Median : 1.00   Median :3.000  
+# 04b04ad4-f56c-72b6-c698-7d9b2a546f11:  1                    Mean   : 8.253   Mean   : 3.51   Mean   :2.826  
+# 05df3ec6-f594-6343-a98a-09f4804aa700:  1                    3rd Qu.:12.000   3rd Qu.: 6.00   3rd Qu.:3.500  
+# 0691c602-3175-2b96-9b4e-f1bafe7b24cc:  1                    Max.   :12.000   Max.   :12.00   Max.   :4.000  
+# (Other)                             :282                                                     NA's   :3      
+#   amotivation       intrinsic       integrated       external      joint_study  joint_number   joint_multi NICE_diagnosis
+#  Min.   :0.0000   Min.   :0.000   Min.   :0.000   Min.   :0.000   4      :62   Min.   :0.000   0: 89       0   :121      
+#  1st Qu.:0.0000   1st Qu.:1.500   1st Qu.:1.500   1st Qu.:0.000   2      :48   1st Qu.:1.000   1:199       1   :162      
+#  Median :0.0000   Median :2.250   Median :2.250   Median :1.000   3      :48   Median :2.000               NA's:  5      
+# Mean   :0.5132   Mean   :2.303   Mean   :2.284   Mean   :1.016   1      :38   Mean   :2.451                             
+# 3rd Qu.:1.0000   3rd Qu.:3.250   3rd Qu.:3.000   3rd Qu.:1.750   6      :25   3rd Qu.:3.000                             
+# Max.   :3.7500   Max.   :4.000   Max.   :4.000   Max.   :4.000   (Other):55   Max.   :8.000                             
+# NA's   :3        NA's   :3       NA's   :3       NA's   :3       NA's   :12                                             
+#     pain_NRS        pain_recode   function_NRS   hipL    hipR    ankleL  ankleR  kneeL   kneeR   footL   footR   PA_typical
+#  Min.   : 1.000   mild    :158   Min.   : 0.00   0:202   0:191   0:235   0:234   0:167   0:143   0:215   0:211   1   :223  
+#  1st Qu.: 4.000   moderate: 93   1st Qu.: 3.00   1: 86   1: 97   1: 53   1: 54   1:121   1:145   1: 73   1: 77   2   : 24  
+#  Median : 5.000   severe  : 32   Median : 5.00                                                                   3   : 35  
+#  Mean   : 5.184   NA's    :  5   Mean   : 5.12                                                                   NA's:  6  
+#  3rd Qu.: 7.000                  3rd Qu.: 7.00                                                                             
+#  Max.   :10.000                  Max.   :10.00                                                                             
+#  NA's   :5                       NA's   :5                                                                                 
+#     VigDays      DailyVigMin_trunc    ModDays      DailyModMin_trunc    WalkDays     DailyWalkMin_trunc TotalDailyPAMin_trunc
+#  Min.   :1.000   Min.   : 1.000    Min.   :1.000   Min.   : 1.000    Min.   :1.000   Min.   : 1.00      Min.   : 1.00        
+#  1st Qu.:1.000   1st Qu.: 1.000    1st Qu.:1.000   1st Qu.: 1.000    1st Qu.:4.000   1st Qu.: 5.00      1st Qu.:12.00        
+#  Median :2.000   Median : 6.000    Median :2.000   Median : 6.000    Median :6.000   Median :10.00      Median :23.00        
+#  Mean   :3.004   Mean   : 6.711    Mean   :3.113   Mean   : 6.564    Mean   :5.657   Mean   :10.25      Mean   :23.38        
+#  3rd Qu.:5.000   3rd Qu.:10.000    3rd Qu.:4.500   3rd Qu.:10.000    3rd Qu.:8.000   3rd Qu.:14.75      3rd Qu.:32.00        
+#  Max.   :8.000   Max.   :21.000    Max.   :8.000   Max.   :19.000    Max.   :8.000   Max.   :22.00      Max.   :56.00        
+#  NA's   :5       NA's   :22        NA's   :5       NA's   :22        NA's   :5       NA's   :22         NA's   :22           
+# METs_Vig        METs_Mod       METs_Walk       METs_Total     FiveDays   SevenDays  IPAQ_cat   PA_clinical_cutpoint
+# Min.   : 1.00   Min.   : 1.00   Min.   : 1.00   Min.   :  1.00   0   : 58   0   : 94   1   : 78   0   :115            
+# 1st Qu.: 1.00   1st Qu.: 1.00   1st Qu.:12.00   1st Qu.: 32.00   1   :225   1   :189   2   : 85   1   :151            
+# Median : 7.50   Median : 8.00   Median :22.00   Median : 90.00   NA's:  5   NA's:  5   3   :120   NA's: 22            
+#  Mean   :10.86   Mean   :11.08   Mean   :22.82   Mean   : 95.41                         NA's:  5                       
+# 3rd Qu.:19.00   3rd Qu.:19.00   3rd Qu.:34.00   3rd Qu.:152.75                                                        
+# Max.   :39.00   Max.   :39.00   Max.   :49.00   Max.   :222.00                                                        
+# NA's   :22      NA's   :22      NA's   :22      NA's   :22                                                            
+# sex         age           BMI_calc           BMI_recode   income    income_recode employed   household      state   
+# 1   :165   Min.   :45.00   Min.   :16.00   healthy    : 50   1   : 14   high  : 19    1   :108   1   : 55   4      :80  
+# 2   :117   1st Qu.:52.00   1st Qu.:25.00   obese      :110   2   : 66   low   : 80    2   :174   2   :225   6      :78  
+# NA's:  6   Median :60.00   Median :28.00   overweight :102   3   :108   medium:161    NA's:  6   4   :  1   5      :60  
+# Mean   :59.97   Mean   :29.15   underweight:  4   4   : 53   NA's  : 28               NA's:  7   3      :30  
+# 3rd Qu.:66.00   3rd Qu.:32.00   NA's       : 22   5   : 19                                       1      :22  
+#             Max.   :86.00   Max.   :50.00                     6   : 22                                       (Other):12  
+#             NA's   :9       NA's   :22                        NA's:  6                                       NA's   : 6  
+#  DCE_mono    duration      
+#  0:  0    Min.   :  293.0  
+#  1:288    1st Qu.:  846.8  
+#           Median : 1059.0  
+#           Mean   : 1481.8  
+#           3rd Qu.: 1436.0  
+#           Max.   :20424.0  
+#                            
 
 ##################
 #CORRELATIONS    #
 ##################
 summary(data_SR_processed)
 data_corr<-select(data_SR_processed, aversion_version=aversion_version,
-                  risk_score=risk_score, loss_score=loss_score, intrinsic=intrinsic, extrinsic=extrinsic, 
+                  risk_score=risk_score, loss_score=loss_score, intrinsic=intrinsic, external=external, 
                   joint_study=joint_study, NICE_diagnosis=NICE_diagnosis, pain_NRS=pain_NRS, pain_recode=pain_recode, 
-                  function_NRS=function_NRS, TotalPAMin_trunc=TotalPAMin_trunc, METs_Total=METs_Total, IPAQ_cat=IPAQ_cat,
-                  gender=gender, age=age, BMI_calc=BMI_calc, BMI_recode=BMI_recode, income=income, income_recode=income_recode, 
+                  function_NRS=function_NRS, METs_Total=METs_Total, IPAQ_cat=IPAQ_cat,
+                  sex=sex, age=age, BMI_calc=BMI_calc, BMI_recode=BMI_recode, income=income, income_recode=income_recode, 
                   employed=employed, state=state, DCE_mono=DCE_mono)
                   
-                  
-                  habit=habit,
-                  intention=intention_strength,
-                  painT1=pain_T1,
-                  painT2=pain_T2,
-                  IPAQT1=IPAQ_MET_MIN_WEEK_T1_trunc,
-                  IPAQT2=IPAQ_MET_MIN_WEEK_T2_trunc,
-                  age=age,
-                  BMI=BMI_calc,
-                  edu=educ_years,
-                  se=selfefficacy,
-                  se_walk=selfefficacy_walk)
+                
 
-summary(data_corr)
+# summary(data_corr)
+# # 
 # 
-
-corr_matrix<-rcorr(as.matrix(data_corr),
-                   type="pearson")
-
-corr_matrix
-#  
-
-flattenCorrMatrix(corr_matrix$r, corr_matrix$P)
-#
-
+# corr_matrix<-rcorr(as.matrix(data_corr),
+#                    type="pearson")
+# 
+# corr_matrix
+# #  
+# 
+# flattenCorrMatrix(corr_matrix$r, corr_matrix$P)
+# #
+# 
