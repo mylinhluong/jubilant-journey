@@ -2,6 +2,7 @@
 #CLEAN DATA based on Guidelines for Data Processing and Analysis of IPAQ
 ######IPAQ Scoring Protocol##### 
 #link to Scoring Protocol here: https://sites.google.com/site/theipaq/scoring-protocol
+#https://docs.google.com/viewer?a=v&pid=sites&srcid=ZGVmYXVsdGRvbWFpbnx0aGVpcGFxfGd4OjE0NDgxMDk3NDU1YWRlZTM
 #More details available below script
 
 data_ipaq<-data%>%
@@ -17,7 +18,8 @@ data_ipaq<-data%>%
                            (VigDays+ModDays+WalkDays>=1 & is.na(VigMin))~0,
                            TRUE~VigMin))%>%
   mutate(VigHours=case_when(VigHours>=10 | VigHours==0.5~0,
-                            (VigDays+ModDays+WalkDays>=1 & is.na(VigHours))~0,
+                           (VigDays+ModDays+WalkDays>=1 & is.na(VigHours))~0,
+                           VigMin>=60~0,
                             TRUE~VigHours))%>%
   arrange(desc(ModHours)) %>%
   #1 c7de6087-7eeb-0090-a8c~       4       40      0       1       30#
@@ -28,6 +30,7 @@ data_ipaq<-data%>%
                           TRUE~ModMin))%>%
   mutate(ModHours=case_when(ModHours>=10 |ModHours==0.5~0,
                            (VigDays+ModDays+WalkDays>=1 & is.na(ModHours))~0,
+                           ModMin>=60~0,
                             TRUE~ModHours))%>%
   arrange(desc(WalkHours)) %>%
   #1 918fc53a-f83c-1bae-fe7~       0       NA     NA       1       NA     NA        7        60
@@ -41,60 +44,59 @@ data_ipaq<-data%>%
                           TRUE~WalkMin))%>%
   mutate(WalkHours=case_when(WalkHours>=10|WalkHours==0.5~0,
                              (VigDays+ModDays+WalkDays>=1 & is.na(WalkHours))~0,
+                             WalkMin>=60~0,
                              TRUE~WalkHours)) %>%
-  mutate(TotalVigMin=VigDays*(VigHours*60+VigMin)) %>% 
-  mutate(TotalModMin=ModDays*(ModHours*60+ModMin)) %>% 
-  mutate(TotalWalkMin=WalkDays*(WalkHours*60+WalkMin)) %>%
-  mutate(TotalPAMin_Daily=((TotalVigMin+TotalModMin+TotalWalkMin)/7)) %>%
-  mutate(across(c(VigDays:TotalPAMin_Daily),
-                ~ifelse(TotalPAMin_Daily>=960, NA, .x))) %>% 
-  mutate(VigHours_trunc=case_when(VigHours>3~3,
-                            VigHours*60<=VigMin~0,
-                            TRUE~VigHours)) %>%
-  mutate(VigMin_trunc=case_when(VigMin>180~180,
-                                VigHours_trunc>=3~0,
-                                TRUE~VigMin)) %>% 
-  mutate(ModHours_trunc=case_when(ModHours>3~3,
-                            ModHours*60<=ModMin~0,
-                            TRUE~ModHours)) %>%
-  mutate(ModMin_trunc=case_when(ModMin>180~180,
-                                ModHours_trunc>=3~0,
-                                TRUE~ModMin)) %>% 
-  mutate(WalkHours_trunc=case_when(WalkHours>3~3,
-                             WalkHours*60<=WalkMin~0,
-                             TRUE~WalkHours)) %>% 
-  mutate(WalkMin_trunc=case_when(WalkMin>180~180,
-                                   WalkHours_trunc>=3~0,
-                                   TRUE~WalkMin)) %>% 
-  mutate(TotalVigMin_trunc=VigDays*(VigHours_trunc*60+VigMin_trunc)) %>% 
-  mutate(TotalModMin_trunc=ModDays*(ModHours_trunc*60+ModMin_trunc)) %>% 
-  mutate(TotalWalkMin_trunc=WalkDays*(WalkHours_trunc*60+WalkMin_trunc)) %>% 
-  mutate(TotalPAMin_trunc=(TotalVigMin_trunc+TotalModMin_trunc+TotalWalkMin_trunc)) %>% 
-  mutate(METs_Vig=8.0*TotalVigMin_trunc) %>% 
-  mutate(METs_Mod=4.0*TotalModMin_trunc) %>% 
-  mutate(METs_Walk=3.3*TotalWalkMin_trunc) %>% 
-  mutate(METs_Total=METs_Vig+METs_Mod+METs_Walk) %>% 
-  mutate(FiveDays=case_when(VigDays+ModDays+WalkDays>=5 |(ModDays>=2 & WalkDays>=3)~1,
+  mutate(DailyVigMin=VigHours*60+VigMin) %>%
+  mutate(DailyModMin=ModHours*60+ModMin) %>% 
+  mutate(DailyWalkMin=WalkHours*60+WalkMin) %>% 
+  mutate(TotalDailyPAMin=DailyVigMin+DailyModMin+DailyWalkMin) %>% 
+  mutate(DailyVigMin_trunc=case_when(DailyVigMin>180~180,
+                                     TRUE~DailyVigMin)) %>% 
+  mutate(DailyModMin_trunc=case_when(DailyModMin>180~180,
+                                     TRUE~DailyModMin)) %>% 
+  mutate(DailyWalkMin_trunc=case_when(DailyWalkMin>180~180,
+                                     TRUE~DailyWalkMin)) %>%
+  mutate(TotalDailyPAMin_trunc=DailyVigMin_trunc+DailyModMin_trunc+DailyWalkMin_trunc) %>% 
+  mutate(METs_Vig=8.0*VigDays*DailyVigMin_trunc) %>% 
+  mutate(METs_Mod=4.0*ModDays*DailyModMin_trunc) %>% 
+  mutate(METs_Walk=3.3*WalkDays*DailyWalkMin_trunc) %>% 
+  mutate(METs_Total=METs_Vig+METs_Mod+METs_Walk) %>%
+  mutate(FiveDays=case_when(VigDays+ModDays+WalkDays>=5~1,
                             VigDays+ModDays+WalkDays<5~0,
                             TRUE~NA_real_)) %>%
-  mutate(SevenDays=case_when(VigDays+ModDays+WalkDays>=7 | (ModDays>=4 & WalkDays>=3)~1,
+  mutate(SevenDays=case_when(VigDays+ModDays+WalkDays>=7~1,
                              VigDays+ModDays+WalkDays<7~0,
                              TRUE~NA_real_)) %>% 
-  mutate(IPAQ_cat=case_when((VigDays>=3 & METs_Total>=1500) |(SevenDays=1 & METs_Total>=3000)~3,
-                            (VigDays>=3 & (VigHours_trunc*60+VigMin_trunc)>=20)| 
-                              (FiveDays==1 & ((ModHours_trunc*60+ModMin_trunc)|(WalkHours_trunc*60+WalkMin_trunc)>=30))|
-                              (FiveDays==1 & (METs_Total>=600))~2,
-                            TotalPAMin_trunc>0~1,
-                            TotalPAMin_trunc==NA_real_~NA_real_)) %>% 
+  mutate(IPAQ_cat=case_when((VigDays>=3 & METs_Total>=1500) |
+                              (SevenDays=1 & METs_Total>=3000)~3,
+                            ((VigDays>=3 & DailyVigMin>=20)| 
+                              (FiveDays==1 & ((DailyModMin + DailyWalkMin)>=30))|
+                              (FiveDays==1 & (METs_Total>=600)))~2,
+                            is.na(VigDays)~NA_real_,
+                            TRUE~1)) %>% 
+  mutate(PA_clinical_cutpoint=case_when(((VigDays*DailyVigMin_trunc)+(ModDays*DailyModMin_trunc))>=131~1,
+                                        ((VigDays*DailyVigMin_trunc)+(ModDays*DailyModMin_trunc))<131~0,
+                                         TRUE~NA_real_)) %>% 
   select(ID, PA_typical, 
-         VigDays, TotalVigMin_trunc,
-         ModDays, TotalModMin_trunc,
-         WalkDays, TotalWalkMin_trunc,
-         TotalPAMin_trunc, METs_Vig, METs_Mod, METs_Walk, METs_Total,
-         FiveDays, SevenDays,IPAQ_cat) %>% 
+         VigDays, DailyVigMin_trunc,
+         ModDays, DailyModMin_trunc,
+         WalkDays, DailyWalkMin_trunc,
+         TotalDailyPAMin_trunc, 
+         METs_Vig, METs_Mod, METs_Walk, 
+         METs_Total,
+         FiveDays, SevenDays,IPAQ_cat, PA_clinical_cutpoint) %>% 
   mutate(PA_typical=case_when(PA_typical==5~2,
                               PA_typical==NA_real_~NA_real_,
-                              TRUE ~ PA_typical)) 
+                              TRUE ~ PA_typical))
+
+
+# #Save object to an rds file to preserve column data types
+# saveRDS(data_ipaq,"01_data/02_processed/data_ipaq.rds")
+
+# #Write to CSV file
+# write.csv(data_ipaq,"01_data/02_processed/data_ipaq.csv", row.names=FALSE)
+
+
 # %>% 
   # mutate(across(c(ID, PA_typical, FiveDays, SevenDays,IPAQ_cat),as.factor))
 
